@@ -440,6 +440,66 @@ def plot_all_predictions(y_true, all_predictions, title="多轮预测对比"):
     plt.show()
 
 
+def plot_three_models_predictions(y_true, lstm_pred, transformer_pred, cnn_lstm_transformer_pred, title="三模型预测对比"):
+    """
+    在一个画布上绘制三个模型的预测对比
+    """
+    plt.figure(figsize=(18, 6))
+
+    sample_idx = 0
+    y_true_sample = y_true[sample_idx]
+
+    # 绘制真实值
+    plt.plot(y_true_sample, label='真实值', linewidth=2.5, color='blue', alpha=0.8)
+
+    # 绘制三个模型的预测
+    plt.plot(lstm_pred[sample_idx], label='LSTM预测', linewidth=2, color='green', linestyle='--', alpha=0.8)
+    plt.plot(transformer_pred[sample_idx], label='Transformer预测', linewidth=2, color='red', linestyle='--', alpha=0.8)
+    plt.plot(cnn_lstm_transformer_pred[sample_idx], label='CNN-LSTM-Transformer预测', linewidth=2, color='purple', linestyle='-.', alpha=0.8)
+
+    plt.xlabel('预测天数', fontsize=12)
+    plt.ylabel('总有功功率 (kW)', fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.legend(fontsize=11, loc='best')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_three_models_all_predictions(y_true, lstm_preds, transformer_preds, cnn_lstm_transformer_preds, title="三模型5轮预测对比"):
+    """
+    在一个画布上绘制三个模型的5轮预测对比
+    """
+    fig, axes = plt.subplots(3, 1, figsize=(16, 15))
+    sample_idx = 0
+    y_true_sample = y_true[sample_idx]
+
+    colors = ['green', 'red', 'purple']
+    model_names = ['LSTM', 'Transformer', 'CNN-LSTM-Transformer']
+    all_preds = [lstm_preds, transformer_preds, cnn_lstm_transformer_preds]
+
+    for i, (ax, preds, color, name) in enumerate(zip(axes, all_preds, colors, model_names)):
+        ax.plot(y_true_sample, label='真实值', linewidth=2.5, color='blue', alpha=0.8)
+
+        # 绘制5轮预测
+        for j, pred in enumerate(preds):
+            ax.plot(pred[sample_idx], alpha=0.25, color=color, linewidth=1)
+
+        # 绘制平均预测
+        avg_pred = np.mean(preds, axis=0)[sample_idx]
+        ax.plot(avg_pred, label=f'{name}平均预测', linewidth=2.5, color=color, linestyle='--')
+
+        ax.set_xlabel('预测天数', fontsize=11)
+        ax.set_ylabel('总有功功率 (kW)', fontsize=11)
+        ax.set_title(f'{name} - 5轮预测结果', fontsize=13, fontweight='bold')
+        ax.legend(fontsize=10, loc='best')
+        ax.grid(True, alpha=0.3)
+
+    plt.suptitle(title, fontsize=16, fontweight='bold', y=1.002)
+    plt.tight_layout()
+    plt.show()
+
+
 # ==================== 主程序 ====================
 def run_prediction_experiment(train_df, test_df, feature_cols, input_days, output_days, experiment_name):
     """
@@ -531,44 +591,22 @@ def run_prediction_experiment(train_df, test_df, feature_cols, input_days, outpu
     # 可视化对比
     print(f"\n>>> 绘制 {experiment_name} 预测对比图")
 
-    # LSTM预测图
-    plot_predictions(
+    # 三个模型预测 vs 真实值对比（一个画布）
+    plot_three_models_predictions(
         lstm_results['y_true'],
         lstm_results['predictions_list'][0],
-        title=f"LSTM 预测 vs 真实值 ({experiment_name})"
-    )
-
-    # Transformer预测图
-    plot_predictions(
-        transformer_results['y_true'],
         transformer_results['predictions_list'][0],
-        title=f"Transformer 预测 vs 真实值 ({experiment_name})"
-    )
-
-    # CNN-LSTM-Transformer预测图
-    plot_predictions(
-        cnn_lstm_transformer_results['y_true'],
         cnn_lstm_transformer_results['predictions_list'][0],
-        title=f"CNN-LSTM-Transformer 预测 vs 真实值 ({experiment_name})"
+        title=f"三模型预测对比 - {experiment_name}"
     )
 
-    # 多轮预测对比
-    plot_all_predictions(
+    # 三个模型5轮预测对比（一个画布）
+    plot_three_models_all_predictions(
         lstm_results['y_true'],
         lstm_results['predictions_list'],
-        title=f"LSTM 5轮预测对比 ({experiment_name})"
-    )
-
-    plot_all_predictions(
-        transformer_results['y_true'],
         transformer_results['predictions_list'],
-        title=f"Transformer 5轮预测对比 ({experiment_name})"
-    )
-
-    plot_all_predictions(
-        cnn_lstm_transformer_results['y_true'],
         cnn_lstm_transformer_results['predictions_list'],
-        title=f"CNN-LSTM-Transformer 5轮预测对比 ({experiment_name})"
+        title=f"三模型5轮预测对比 - {experiment_name}"
     )
 
     return {
