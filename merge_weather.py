@@ -45,6 +45,13 @@ def merge_weather_to_daily(daily_df, weather_df):
     # 创建合并键（年份-月份）
     daily_df = daily_df.copy()
 
+    # 删除已有的天气列（避免重复合并）
+    weather_features = ['monthly_rainfall', 'rain_days_1mm', 'rain_days_5mm',
+                       'rain_days_10mm', 'fog_days', 'monthly_max_temp', 'monthly_min_temp']
+    for col in weather_features:
+        if col in daily_df.columns:
+            daily_df = daily_df.drop(col, axis=1)
+
     # 合并数据
     merged_df = pd.merge(
         daily_df,

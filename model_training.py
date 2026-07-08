@@ -161,7 +161,6 @@ class TransformerModel(nn.Module):
         out = self.fc(out)
         return out
 
-
 # ==================== CNN-LSTM-Transformer 混合模型 ====================
 class CNNLSTMTransformerModel(nn.Module):
     def __init__(self, input_size, d_model=128, nhead=8, num_layers=3, output_size=90, dropout=0.1):
@@ -223,6 +222,7 @@ class CNNLSTMTransformerModel(nn.Module):
         out = self.dropout(out)
         out = self.fc(out)
         return out
+
 
 
 # ==================== 训练函数 ====================
@@ -623,7 +623,7 @@ def main():
 
     # 1. 加载数据
     print("\n>>> 加载数据")
-    # 使用一个文件，按时间划分（2009-01-01之前为训练集，之后为测试集）
+    # 使用干净的 train_daily_with_weather.csv（已包含天气特征）
     train_df, test_df = load_and_prepare_data(
         'train_daily_with_weather.csv',
         None,  # 不使用单独的测试文件

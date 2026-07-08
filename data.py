@@ -197,7 +197,7 @@ def preprocess_power_data(file_path, output_path=None, weather_path='MENSQ_01_pr
     # 转换为每天的总 Wh：kW * 1000 * 24（如果数据完整的话）
     # 更精确：用实际分钟数计算
     df_daily['Sub_metering_remainder'] = (
-        df_daily['Global_active_power'] * 1000 / 60 * df_daily['minutes_count']
+        df_daily['Global_active_power'] * 1000 / 60 
         - df_daily['Sub_metering_1']
         - df_daily['Sub_metering_2']
         - df_daily['Sub_metering_3_sum']
